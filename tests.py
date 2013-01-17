@@ -1,11 +1,11 @@
 
 from cacheobj import CacheObject
 from cacheobj.backends.inmemory import InMemoryBackend
-from cacheobj.backends.memcacheb import MemcacheBackend
-from cacheobj.backends.redisb import RedisBackend
+from cacheobj.backends.memcache import MemcacheBackend
+from cacheobj.backends.redis import RedisBackend
 from cacheobj.inmemory import InMemoryObject
-from cacheobj.rediso import LocalRedisObject
-from cacheobj.memcacheo import LocalMemcacheObject
+from cacheobj.redis import LocalRedisObject
+from cacheobj.memcache import LocalMemcacheObject
 
 memory = InMemoryBackend()
 memcache = MemcacheBackend()

@@ -1,6 +1,8 @@
 
+from __future__ import absolute_import
+
 import memcache
-from backends import BaseBackend
+from . import BaseBackend
 
 local_pool = ["127.0.0.1:11211"]
 

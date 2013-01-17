@@ -9,7 +9,7 @@ There is some pre-defined common types.
 
 in-memory, memcache and redis backends are included. And its common general interfaces too.
 
-    >>> from cacheobj.rediso import LocalRedisObject
+    >>> from cacheobj.redis import LocalRedisObject
     >>> class UserCache(LocalRedisObject):
     ...   _properties = ['username', 'name']
     ... 
@@ -33,7 +33,7 @@ If you don't want to hit backend again, there is use_cache option for local memo
 
 For non-local cache backend, try a easy generator.
 
-    >>> from cacheobj.rediso import get_redis_object
+    >>> from cacheobj.redis import get_redis_object
     >>> import redis
     >>> MyRedisObject = get_redis_object(redis.ConnectionPool()) # any connection pool
     >>> class MyUserCache(MyRedisObject):
@@ -46,7 +46,7 @@ Custom Backend
 Upper examples are shortcut for basic configuration.
 
     >>> from cacheobj import SimpleCacheObject
-    >>> from cacheobj.backends.memcacheb import MemcacheBackend
+    >>> from cacheobj.backends.memcache import MemcacheBackend
     >>> def get_backend():
     ...   return MemcacheBackend(['127.0.0.1:11211'])
     ...
@@ -67,8 +67,8 @@ You can composite multiple backends for an object.
 
     >>> from cacheobj import CacheObject
     >>> from cacheobj.backends.inmemory import InMemoryBackend
-    >>> from cacheobj.backends.memcacheb import MemcacheBackend
-    >>> from cacheobj.backends.redisb import RedisBackend
+    >>> from cacheobj.backends.memcache import MemcacheBackend
+    >>> from cacheobj.backends.redis import RedisBackend
     >>> 
     >>> memory = InMemoryBackend()
     >>> memcache = MemcacheBackend()
