@@ -98,13 +98,13 @@ class SimpleCacheObject(CacheObject):
     _backend_generator = None
     _properties = []
 
-    @property
-    def _backend(self):
-        if not hasattr(self, '__backend'):
-            self.__backend = self._backend_generator()
-        return self.__backend
+    @classmethod
+    def _backend(cls):
+        if not hasattr(cls, '__backend'):
+            cls.__backend = cls._backend_generator()
+        return cls.__backend
 
     def _backend_for_key(self, key):
         if key in self._properties:
-            return self._backend
+            return self._backend()
         raise KeyError
