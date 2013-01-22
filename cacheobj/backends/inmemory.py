@@ -14,3 +14,6 @@ class InMemoryBackend(BaseBackend):
 
     def get(self, key, default=None):
         return self.storage.get(key, default)
+
+    def delete(self, key):
+        del self.storage[key]

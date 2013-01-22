@@ -5,3 +5,6 @@ class BaseBackend(object):
 
     def set(self, key, value):
         raise NotImplementedError
+
+    def delete(self, key):
+        raise NotImplementedError

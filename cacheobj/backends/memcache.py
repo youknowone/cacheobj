@@ -21,3 +21,5 @@ class MemcacheBackend(BaseBackend):
             return default
         return value
 
+    def delete(self, key):
+        self.client.delete(key)
