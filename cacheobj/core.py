@@ -20,6 +20,8 @@ class CacheObject(object):
     """
 
     _backends = {} # constant table
+    _expiration = None # seconds. None for permanent or default
+    _strict = False
 
     def __init__(self, id=0, prefix=''):
         self._id = id
@@ -38,11 +40,16 @@ class CacheObject(object):
         if not hasattr(self, '_backend_table'):
             table = self._backend_table = {}
             for backend, keys in self._backends.items():
-                for key in keys:
-                    table[key] = backend
+                for akey in keys:
+                    table[akey] = backend
+        #print 'BACKEND', key, self._backend_table[key]
         return self._backend_table[key]
     
+    def _expiration_for_key(self, key):
+        return self._expiration
+
     def get(self, key, default=None, use_cache=False):
+        #print 'GET({}) {} ({}) cache:{}'.format(self.__class__.__name__, key, default, use_cache)
         if use_cache:
             try:
                 return self._locals[key]
@@ -54,9 +61,15 @@ class CacheObject(object):
             self._locals[key] = result
         return result
 
-    def set(self, key, value, use_cache=True):
+    def set(self, key, value, expiration=None, default=None, use_cache=True):
+        #print 'SET({}) {}:{} ({}) for {}s cache:{}'.format(self.__class__.__name__, key, value, default, expiration, use_cache)
         backend = self._backend_for_key(key)
-        result = backend.set(self._cache_key(key), value)
+        cache_key = self._cache_key(key)
+        expiration = self._expiration_for_key(key) if expiration is None else expiration
+        if value == default:
+            result = backend.delete(cache_key)
+        else:
+            result = backend.set(self._cache_key(key), value, expiration)
         if use_cache:
             self._locals[key] = value
         return result
@@ -66,7 +79,8 @@ class CacheObject(object):
             try:
                 return self.get(key)
             except KeyError:
-               pass
+                if self._strict:
+                    raise
         sup = super(CacheObject, self)
         try:
             return sup.__getattr__(key)
@@ -78,7 +92,9 @@ class CacheObject(object):
             try:
                 self.set(key, value)
             except KeyError:
-                pass
+                if self._strict:
+                    raise
+            return
         sup = super(CacheObject, self)
         return sup.__setattr__(key, value)
 

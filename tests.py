@@ -1,4 +1,5 @@
 
+import time
 from cacheobj import CacheObject
 from cacheobj.backends.inmemory import InMemoryBackend
 from cacheobj.backends.memcache import MemcacheBackend
@@ -17,6 +18,7 @@ class TestObject(CacheObject):
         memcache: ['mc1', 'mc2'],
         redis: ['redis1', 'redis2'],
     }
+    _strict = True
 
 t = TestObject()
 assert t._cache_key('key') == 'TestObject.0.key'
@@ -54,6 +56,7 @@ assert t.mem1 is None
 
 class AMemoryObject(InMemoryObject):
     _properties = ['test1']
+    _strict = True
 
 t = AMemoryObject()
 t.test1 = 10
@@ -64,6 +67,7 @@ assert t.test1 == 10
 
 class AMemcacheObject(LocalMemcacheObject):
     _properties = ['test1']
+    _strict = True
 
 t = AMemcacheObject()
 t.test1 = 10
@@ -74,6 +78,7 @@ assert t.test1 == 10
 
 class ARedisObject(LocalRedisObject):
     _properties = ['test1']
+    _strict = True
 
 t = ARedisObject()
 t.test1 = 10
@@ -90,3 +95,16 @@ t2.test1 = 2
 
 assert t1.get('test1', use_cache=True) != t2.get('test1', use_cache=True)
 assert t1.get('test1') == t2.get('test1')
+
+t1.set('test1', 10, 1)
+assert t1.test1 == 10
+time.sleep(2)
+assert t1.test1 != 10
+
+
+t.set('test1', 10, 1)
+assert t.test1 == "10"
+time.sleep(2)
+assert t.test1 != "10"
+
+

@@ -10,10 +10,13 @@ class MemcacheBackend(BaseBackend):
     def __init__(self, pool=local_pool):
         self.client = memcache.Client(pool)
 
-    def set(self, key, value):
-        result = self.client.set(key, value)
+    def set(self, key, value, expiration=0):
+        if expiration is None:
+            expiration = 0
+        result = self.client.set(key, value, expiration)
         if not result:
             raise AttributeError("can't set attribute")
+        return result
 
     def get(self, key, default=None):
         value = self.client.get(key)
@@ -22,4 +25,4 @@ class MemcacheBackend(BaseBackend):
         return value
 
     def delete(self, key):
-        self.client.delete(key)
+        return self.client.delete(key)

@@ -10,10 +10,13 @@ class RedisBackend(BaseBackend):
     def __init__(self, pool=local_pool):
         self.client = redis.Redis(connection_pool=pool)
 
-    def set(self, key, value):
+    def set(self, key, value, expiration=None):
         result = self.client.set(key, value)
+        if expiration:
+            self.client.expire(key, expiration)
         if not result:
             raise AttributeError("can't set attribute")
+        return result
 
     def get(self, key, default=None):
         value = self.client.get(key)
@@ -22,4 +25,4 @@ class RedisBackend(BaseBackend):
         return value
 
     def delete(self, key):
-        self.client.delete(key)
+        return self.client.delete(key)
