@@ -51,8 +51,17 @@ assert t.mc2 == 2
 assert t.redis1 == 'c'
 assert t.redis2 == '3' # redis is string based always
 
-t = TestObject(1)
+t1 = TestObject(1)
+assert t1.mem1 is None
+
+t.delete_all()
+
 assert t.mem1 is None
+assert t.mem2 is None
+assert t.mc1 is None
+assert t.mc2 is None
+assert t.redis1 is None
+assert t.redis2 is None
 
 class AMemoryObject(InMemoryObject):
     _properties = ['test1']

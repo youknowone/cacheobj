@@ -74,6 +74,19 @@ class CacheObject(object):
             self._locals[key] = value
         return result
 
+    def delete(self, key):
+        backend = self._backend_for_key(key)
+        cache_key = self._cache_key(key)
+        result = backend.delete(cache_key)
+        return result
+
+    def delete_all(self):
+        for backend, keys in self._backends.items():
+            for key in keys:
+                cache_key = self._cache_key(key)
+                backend.delete(cache_key)
+
+
     def __getattr__(self, key):
         if key and key[0] != '_':
             try:
@@ -124,3 +137,8 @@ class SimpleCacheObject(CacheObject):
         if key in self._properties:
             return self._backend()
         raise KeyError
+    
+    def delete_all(self):
+        backend = self._backend()
+        for key in self._properties:
+            backend.delete(key)
