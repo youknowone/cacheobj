@@ -28,7 +28,7 @@ class CacheObject(object):
         self._str_id = str(id)
         self._prefix = prefix
         self._locals = {}
-    
+
     @property
     def _cache_prefix(self):
         return self.__class__.__name__ + self._prefix
@@ -39,12 +39,17 @@ class CacheObject(object):
     def _backend_for_key(self, key):
         if not hasattr(self, '_backend_table'):
             table = self._backend_table = {}
+            trans = self._trans_table = {}
             for backend, keys in self._backends.items():
                 for akey in keys:
-                    table[akey] = backend
+                    if isinstance(akey, tuple):
+                        table[akey[0]] = backend
+                        trans[akey[0]] = akey[1]
+                    else:
+                        table[akey] = backend
         #print 'BACKEND', key, self._backend_table[key]
         return self._backend_table[key]
-    
+
     def _expiration_for_key(self, key):
         return self._expiration
 
@@ -57,6 +62,8 @@ class CacheObject(object):
                 pass
         backend = self._backend_for_key(key)
         result = backend.get(self._cache_key(key), default)
+        if key in self._trans_table:
+            result = self._trans_table[key](result)
         if use_cache:
             self._locals[key] = result
         return result
@@ -134,10 +141,19 @@ class SimpleCacheObject(CacheObject):
         return cls.__backend
 
     def _backend_for_key(self, key):
-        if key in self._properties:
+        if not hasattr(self, '_property_keys'):
+            keys = self._property_keys = []
+            trans = self._trans_table = {}
+            for akey in self._properties:
+                if isinstance(akey, tuple):
+                    keys.append(akey[0])
+                    trans[akey[0]] = akey[1]
+                else:
+                    keys.append(akey)
+        if key in self._property_keys:
             return self._backend()
         raise KeyError
-    
+
     def delete_all(self):
         backend = self._backend()
         for key in self._properties:
