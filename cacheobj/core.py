@@ -29,6 +29,72 @@ class CacheObject(object):
         self._prefix = prefix
         self._locals = {}
 
+        self._init()
+
+    def _get_key_func(self, backend, key, trans):
+        cache_key = self._cache_key(key)
+        def get_key(self, default=None, use_cache=False):
+            if use_cache:
+                try:
+                    return self._locals[key]
+                except KeyError:
+                    pass
+            #print 'get:', cache_key
+            result = backend.get(cache_key, default)
+            if trans:
+                result = trans(result)
+            if use_cache:
+                self._locals[key] = result
+            return result
+        return get_key
+            
+    def _set_key_func(self, backend, key):
+        cache_key = self._cache_key(key)
+        def set_key(self, value, expiration=None, default=None, use_cache=True):
+            expiration = self._expiration_for_key(key) if expiration is None else expiration
+            if value == default:
+                result = backend.delete(cache_key)
+            else:
+                result = backend.set(self._cache_key(key), value, expiration)
+            if use_cache:
+                self._locals[key] = value
+            return result
+        return set_key
+    
+    def _del_key_func(self, backend, key):
+        cache_key = self._cache_key(key)
+        def del_key(self):
+            result = backend.delete(cache_key)
+            return result
+        return del_key
+
+    def _set_property(self, prop, backend):
+        cls = self.__class__
+        if isinstance(prop, tuple):
+            key, trans = prop
+        else: # str
+            key = prop
+            trans = None
+
+        get_key = self._get_key_func(backend, key, trans)
+        set_key = self._set_key_func(backend, key)
+        setattr(cls, '_get_' + key, get_key)
+        setattr(cls, '_set_' + key, set_key)
+        setattr(cls, '_del_' + key, self._del_key_func(backend, key))
+        setattr(cls, key, property(get_key, set_key))
+
+
+    def _init(self):
+        cls = self.__class__
+        if hasattr(cls, '_SET'):
+            return
+
+        for backend, props in self._backends.items():
+            for prop in props:
+                self._set_property(prop, backend)
+
+        cls._SET = True 
+
     @property
     def _cache_prefix(self):
         return self.__class__.__name__ + self._prefix
@@ -36,87 +102,14 @@ class CacheObject(object):
     def _cache_key(self, key):
         return '.'.join((self._cache_prefix, self._str_id, key))
 
-    def _backend_for_key(self, key):
-        if not hasattr(self, '_backend_table'):
-            table = self._backend_table = {}
-            trans = self._trans_table = {}
-            for backend, keys in self._backends.items():
-                for akey in keys:
-                    if isinstance(akey, tuple):
-                        table[akey[0]] = backend
-                        trans[akey[0]] = akey[1]
-                    else:
-                        table[akey] = backend
-        #print 'BACKEND', key, self._backend_table[key]
-        return self._backend_table[key]
-
     def _expiration_for_key(self, key):
         return self._expiration
-
-    def get(self, key, default=None, use_cache=False):
-        #print 'GET({}) {} ({}) cache:{}'.format(self.__class__.__name__, key, default, use_cache)
-        if use_cache:
-            try:
-                return self._locals[key]
-            except KeyError:
-                pass
-        backend = self._backend_for_key(key)
-        result = backend.get(self._cache_key(key), default)
-        if key in self._trans_table:
-            result = self._trans_table[key](result)
-        if use_cache:
-            self._locals[key] = result
-        return result
-
-    def set(self, key, value, expiration=None, default=None, use_cache=True):
-        #print 'SET({}) {}:{} ({}) for {}s cache:{}'.format(self.__class__.__name__, key, value, default, expiration, use_cache)
-        backend = self._backend_for_key(key)
-        cache_key = self._cache_key(key)
-        expiration = self._expiration_for_key(key) if expiration is None else expiration
-        if value == default:
-            result = backend.delete(cache_key)
-        else:
-            result = backend.set(self._cache_key(key), value, expiration)
-        if use_cache:
-            self._locals[key] = value
-        return result
-
-    def delete(self, key):
-        backend = self._backend_for_key(key)
-        cache_key = self._cache_key(key)
-        result = backend.delete(cache_key)
-        return result
 
     def delete_all(self):
         for backend, keys in self._backends.items():
             for key in keys:
                 cache_key = self._cache_key(key)
                 backend.delete(cache_key)
-
-
-    def __getattr__(self, key):
-        if key and key[0] != '_':
-            try:
-                return self.get(key)
-            except KeyError:
-                if self._strict:
-                    raise
-        sup = super(CacheObject, self)
-        try:
-            return sup.__getattr__(key)
-        except:
-            return sup.__getattribute__(key)
-
-    def __setattr__(self, key, value):
-        if key and key[0] != '_':
-            try:
-                self.set(key, value)
-            except KeyError:
-                if self._strict:
-                    raise
-            return
-        sup = super(CacheObject, self)
-        return sup.__setattr__(key, value)
 
 
 class SimpleCacheObject(CacheObject):
@@ -133,28 +126,25 @@ class SimpleCacheObject(CacheObject):
     """
     _backend_generator = None
     _properties = []
+    
+    def _init(self):
+        cls = self.__class__
+        if hasattr(cls, '_SET'):
+            return
 
-    @classmethod
-    def _backend(cls):
-        if not hasattr(cls, '__backend'):
-            cls.__backend = cls._backend_generator()
-        return cls.__backend
+        backend = cls._backend = cls._backend_generator()
+        for prop in self._properties:
+            self._set_property(prop, backend)
 
-    def _backend_for_key(self, key):
-        if not hasattr(self, '_property_keys'):
-            keys = self._property_keys = []
-            trans = self._trans_table = {}
-            for akey in self._properties:
-                if isinstance(akey, tuple):
-                    keys.append(akey[0])
-                    trans[akey[0]] = akey[1]
-                else:
-                    keys.append(akey)
-        if key in self._property_keys:
-            return self._backend()
-        raise KeyError
+        cls._SET = True 
 
     def delete_all(self):
-        backend = self._backend()
-        for key in self._properties:
-            backend.delete(key)
+        backend = self._backend
+        for prop in self._properties:
+            if isinstance(prop, tuple):
+                key = prop[0]
+            else:
+                key = prop
+            cache_key = self._cache_key(key)
+            #print 'del:', cache_key
+            backend.delete(cache_key)

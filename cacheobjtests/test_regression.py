@@ -20,100 +20,46 @@ class TestObject(CacheObject):
     }
     _strict = True
 
-t = TestObject()
-assert t._cache_key('key') == 'TestObject.0.key'
+def test_object():
+    t = TestObject()
+    assert t._cache_key('key') == 'TestObject.0.key'
 
-t.mem1 = 'a'
-assert t.mem1 == 'a'
-t.mem2 = 1
+    t.mem1 = 'a'
+    assert t.mem1 == 'a'
+    t.mem2 = 1
 
-try:
-    t.mc1 = 'b'
+    try:
+        t.mc1 = 'b'
+        assert t.mc1 == 'b'
+        t.mc2 = 2
+    except:
+        print 'local memcache server looks not available.'
+        raise
+
+    try:
+        t.redis1 = 'c'
+        assert t.redis1 == 'c'
+        t.redis2 = 3
+    except:
+        print 'local redis server looks not available.'
+        raise
+
+def test_reload():
+    t = TestObject()
+    assert t.mem1 == 'a'
+    assert t.mem2 == 1
     assert t.mc1 == 'b'
-    t.mc2 = 2
-except:
-    print 'local memcache server looks not available.'
-    raise
-
-try:
-    t.redis1 = 'c'
+    assert t.mc2 == 2
     assert t.redis1 == 'c'
-    t.redis2 = 3
-except:
-    print 'local redis server looks not available.'
-    raise
+    assert t.redis2 == '3' # redis is string based always
 
-t = TestObject()
-assert t.mem1 == 'a'
-assert t.mem2 == 1
-assert t.mc1 == 'b'
-assert t.mc2 == 2
-assert t.redis1 == 'c'
-assert t.redis2 == '3' # redis is string based always
+    t1 = TestObject(1)
+    t.delete_all()
 
-t1 = TestObject(1)
-assert t1.mem1 is None
-
-t.delete_all()
-
-assert t.mem1 is None
-assert t.mem2 is None
-assert t.mc1 is None
-assert t.mc2 is None
-assert t.redis1 is None
-assert t.redis2 is None
-
-class AMemoryObject(InMemoryObject):
-    _properties = ['test1']
-    _strict = True
-
-t = AMemoryObject()
-t.test1 = 10
-
-t = AMemoryObject()
-assert t.test1 == 10
-
-
-class AMemcacheObject(LocalMemcacheObject):
-    _properties = ['test1']
-    _strict = True
-
-t = AMemcacheObject()
-t.test1 = 10
-
-t = AMemcacheObject()
-assert t.test1 == 10
-
-
-class ARedisObject(LocalRedisObject):
-    _properties = ['test1']
-    _strict = True
-
-t = ARedisObject()
-t.test1 = 10
-
-t = ARedisObject()
-assert t.test1 == '10'
-
-
-t1 = AMemcacheObject()
-t2 = AMemcacheObject()
-
-t1.test1 = 1
-t2.test1 = 2
-
-assert t1.get('test1', use_cache=True) != t2.get('test1', use_cache=True)
-assert t1.get('test1') == t2.get('test1')
-
-t1.set('test1', 10, 1)
-assert t1.test1 == 10
-time.sleep(2)
-assert t1.test1 != 10
-
-
-t.set('test1', 10, 1)
-assert t.test1 == "10"
-time.sleep(2)
-assert t.test1 != "10"
-
+    assert t.mem1 is None
+    assert t.mem2 is None
+    assert t.mc1 is None
+    assert t.mc2 is None
+    assert t.redis1 is None
+    assert t.redis2 is None
 
