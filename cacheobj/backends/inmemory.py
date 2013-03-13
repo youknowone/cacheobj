@@ -5,13 +5,13 @@ global_storage = {}
 
 class InMemoryBackend(BaseBackend):
     def __init__(self, storage=None):
-        if storage is None:
+        if not storage:
             storage = global_storage # not good enough for big
         self.storage = storage
 
     def set(self, key, value, expiration=None):
         self.storage[key] = value
-        assert value == self.storage.get(key, None)
+        assert value == self.storage[key]
         return True
 
     def get(self, key, default=None):
@@ -20,3 +20,4 @@ class InMemoryBackend(BaseBackend):
     def delete(self, key):
         del self.storage[key]
         return True
+
