@@ -72,6 +72,11 @@ def test_local_cache():
     assert t1._get_test1(use_cache=True) != t2._get_test1(use_cache=True)
     assert t1._get_test1() == t2._get_test1()
 
+    t1.test1 = 1
+    t2.test1 = 2
+    assert t1._get('test1', use_cache=True) != t2._get('test1', use_cache=True)
+    assert t1._get('test1') == t2._get('test1')
+
 @pytest.mark.parametrize(('t1', 't2'), [
     (mem1, mem2),
     (mc1, mc2),

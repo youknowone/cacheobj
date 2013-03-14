@@ -68,7 +68,7 @@ class CacheObject(object):
             return result
         return del_key
 
-    def _set_property(self, prop, backend):
+    def _setproperty(self, prop, backend):
         cls = self.__class__
         if isinstance(prop, tuple):
             key, trans = prop
@@ -83,6 +83,14 @@ class CacheObject(object):
         setattr(cls, '_del_' + key, self._del_key_func(backend, key))
         setattr(cls, key, property(get_key, set_key))
 
+    def _get(self, key, **params):
+        getter = getattr(self, '_get_' + key)
+        return getter(**params)
+
+    def _set(self, key, value, **params):
+        setter = getattr(self, '_set_' + key)
+        return setter(value, **params)
+
 
     def _init(self):
         cls = self.__class__
@@ -91,7 +99,7 @@ class CacheObject(object):
 
         for backend, props in self._backends.items():
             for prop in props:
-                self._set_property(prop, backend)
+                self._setproperty(prop, backend)
 
         cls._SET = True 
 
@@ -134,7 +142,7 @@ class SimpleCacheObject(CacheObject):
 
         backend = cls._backend = cls._backend_generator()
         for prop in self._properties:
-            self._set_property(prop, backend)
+            self._setproperty(prop, backend)
 
         cls._SET = True 
 
