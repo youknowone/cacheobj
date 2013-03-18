@@ -21,7 +21,7 @@ def get_readme():
 setup(
     name='cacheobj',
     version=get_version(),
-    description='An cache interface with python object-property interface.',
+    description='A cache interface with python object-property interface.',
     long_description=get_readme(),
     author='Jeong YunWon',
     author_email='jeong+cacheobj@youknowone.org',
