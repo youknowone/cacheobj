@@ -31,6 +31,10 @@ class CacheObject(object):
 
         self._init()
 
+    @property
+    def _int_id(self):
+        return int(self._id)
+
     def _get_key_func(self, backend, key, trans):
         def get_key(self, default=None, use_cache=False):
             cache_key = self._cache_key(key)
