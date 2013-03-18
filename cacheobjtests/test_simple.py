@@ -12,6 +12,7 @@ class AMemoryObject(InMemoryObject):
 
 mem1 = AMemoryObject()
 mem2 = AMemoryObject()
+memx = AMemoryObject(8)
 
 class AMemcacheObject(LocalMemcacheObject):
     _properties = ['test1']
@@ -19,6 +20,7 @@ class AMemcacheObject(LocalMemcacheObject):
 
 mc1 = AMemcacheObject()
 mc2 = AMemcacheObject()
+mcx = AMemcacheObject(8)
 
 def intif(v):
     try:
@@ -32,6 +34,7 @@ class ARedisObject(LocalRedisObject):
 
 rd1 = ARedisObject()
 rd2 = ARedisObject()
+rdx = ARedisObject(8)
 
 
 @pytest.mark.parametrize(('obj',), [
@@ -62,6 +65,15 @@ def test_reload(o1, o2):
     o1.test1 = 10
     assert o1.test1 == o2.test1
 
+@pytest.mark.parametrize(('o1', 'o2'), [
+    (mem1, memx),
+    (mc1, mcx),
+    (rd1, rdx),
+])
+def test_reloadx(o1, o2):
+    o1.test1 = 10
+    assert o2.test1 != 10
+
 
 def test_local_cache():
     t1, t2 = mc1, mc2
@@ -85,5 +97,10 @@ def test_local_cache():
 def test_expiration(t1, t2):
     t1._set_test1(10, 1)
     assert t1.test1 == 10
-    time.sleep(2)
+    time.sleep(1)
     assert t1.test1 != 10
+    
+    t1._set_test1(10, 2)
+    assert t1.test1 == 10
+    time.sleep(1)
+    assert t1.test1 == 10

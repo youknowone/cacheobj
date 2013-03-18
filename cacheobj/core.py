@@ -32,8 +32,8 @@ class CacheObject(object):
         self._init()
 
     def _get_key_func(self, backend, key, trans):
-        cache_key = self._cache_key(key)
         def get_key(self, default=None, use_cache=False):
+            cache_key = self._cache_key(key)
             if use_cache:
                 try:
                     return self._locals[key]
@@ -49,21 +49,22 @@ class CacheObject(object):
         return get_key
             
     def _set_key_func(self, backend, key):
-        cache_key = self._cache_key(key)
         def set_key(self, value, expiration=None, default=None, use_cache=True):
+            cache_key = self._cache_key(key)
             expiration = self._expiration_for_key(key) if expiration is None else expiration
             if value == default:
                 result = backend.delete(cache_key)
             else:
-                result = backend.set(self._cache_key(key), value, expiration)
+                result = backend.set(cache_key, value, expiration)
+                print 'set', cache_key, value, expiration
             if use_cache:
                 self._locals[key] = value
             return result
         return set_key
     
     def _del_key_func(self, backend, key):
-        cache_key = self._cache_key(key)
         def del_key(self):
+            cache_key = self._cache_key(key)
             result = backend.delete(cache_key)
             return result
         return del_key
