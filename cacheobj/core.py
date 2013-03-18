@@ -56,7 +56,7 @@ class CacheObject(object):
                 result = backend.delete(cache_key)
             else:
                 result = backend.set(cache_key, value, expiration)
-                print 'set', cache_key, value, expiration
+                #print 'set', cache_key, value, expiration
             if use_cache:
                 self._locals[key] = value
             return result
