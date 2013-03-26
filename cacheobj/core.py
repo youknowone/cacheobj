@@ -139,20 +139,25 @@ class SimpleCacheObject(CacheObject):
     """
     _backend_generator = None
     _properties = []
-    
+   
+    @classmethod
+    def _backend(cls):
+        if not hasattr(cls, '__backend'):
+            cls.__backend = cls._backend_generator()
+        return cls.__backend
+
     def _init(self):
         cls = self.__class__
         if hasattr(cls, '_SET'):
             return
 
-        backend = cls._backend = cls._backend_generator()
         for prop in self._properties:
-            self._setproperty(prop, backend)
+            self._setproperty(prop, cls._backend())
 
         cls._SET = True 
 
     def delete_all(self):
-        backend = self._backend
+        backend = self._backend()
         for prop in self._properties:
             if isinstance(prop, tuple):
                 key = prop[0]
