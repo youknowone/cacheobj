@@ -1,4 +1,6 @@
 
+from .field import Field, SimpleField
+
 class CacheObject(object):
     """
     General purpose cache object. _backends should be constant for default implementaiton.
@@ -35,34 +37,15 @@ class CacheObject(object):
     def _int_id(self):
         return int(self._id)
 
-    def _get_key_func(self, backend, key, trans):
+    def _get_key_func(self, field):
         def get_key(self, default=None, use_cache=False):
-            cache_key = self._cache_key(key)
-            if use_cache:
-                try:
-                    return self._locals[key]
-                except KeyError:
-                    pass
-            #print 'get:', cache_key
-            result = backend.get(cache_key, default)
-            if trans:
-                result = trans(result)
-            if use_cache:
-                self._locals[key] = result
+            result = field.get(self, default, read_cache=use_cache)
             return result
         return get_key
             
-    def _set_key_func(self, backend, key):
-        def set_key(self, value, expiration=None, default=None, use_cache=True):
-            cache_key = self._cache_key(key)
-            expiration = self._expiration_for_key(key) if expiration is None else expiration
-            if value == default:
-                result = backend.delete(cache_key)
-            else:
-                result = backend.set(cache_key, value, expiration)
-                #print 'set', cache_key, value, expiration
-            if use_cache:
-                self._locals[key] = value
+    def _set_key_func(self, field):
+        def set_key(self, value, expiration=None, default=None, use_cache=False):
+            result = field.set(self, value, expiration, read_cache=use_cache)
             return result
         return set_key
     
@@ -73,20 +56,22 @@ class CacheObject(object):
             return result
         return del_key
 
-    def _setproperty(self, prop, backend):
+    def _set_property(self, prop, backend):
         cls = self.__class__
-        if isinstance(prop, tuple):
-            key, trans = prop
-        else: # str
-            key = prop
-            trans = None
+        if not isinstance(prop, Field):
+            assert type(prop) == str
+            field = SimpleField(backend, prop)
+        else:
+            field = prop
+            field.backend = backend
+        field.owner = self
 
-        get_key = self._get_key_func(backend, key, trans)
-        set_key = self._set_key_func(backend, key)
-        setattr(cls, '_get_' + key, get_key)
-        setattr(cls, '_set_' + key, set_key)
-        setattr(cls, '_del_' + key, self._del_key_func(backend, key))
-        setattr(cls, key, property(get_key, set_key))
+        get_key = self._get_key_func(field)
+        set_key = self._set_key_func(field)
+        setattr(cls, '_get_' + field.name, get_key)
+        setattr(cls, '_set_' + field.name, set_key)
+        setattr(cls, '_del_' + field.name, self._del_key_func(backend, field.key))
+        setattr(cls, field.name, property(get_key, set_key))
 
     def _get(self, key, **params):
         getter = getattr(self, '_get_' + key)
@@ -104,7 +89,7 @@ class CacheObject(object):
 
         for backend, props in self._backends.items():
             for prop in props:
-                self._setproperty(prop, backend)
+                self._set_property(prop, backend)
 
         cls._SET = True 
 
@@ -152,17 +137,18 @@ class SimpleCacheObject(CacheObject):
             return
 
         for prop in self._properties:
-            self._setproperty(prop, cls._backend())
+            self._set_property(prop, cls._backend())
 
-        cls._SET = True 
+        cls._SET = True
 
     def delete_all(self):
         backend = self._backend()
         for prop in self._properties:
-            if isinstance(prop, tuple):
-                key = prop[0]
+            if not isinstance(prop, Field):
+                field = SimpleField(backend, prop)
             else:
-                key = prop
-            cache_key = self._cache_key(key)
+                field = prop
+                field.backend = backend
+            cache_key = self._cache_key(field.key)
             #print 'del:', cache_key
             backend.delete(cache_key)

@@ -5,6 +5,7 @@ from cacheobj.inmemory import InMemoryObject
 from cacheobj.redis import LocalRedisObject
 from cacheobj.memcache import LocalMemcacheObject
 
+from cacheobj.field import SimpleField
 
 class AMemoryObject(InMemoryObject):
     _properties = ['test1']
@@ -29,7 +30,7 @@ def intif(v):
         return v
 
 class ARedisObject(LocalRedisObject):
-    _properties = [('test1', intif)]
+    _properties = [SimpleField(None, 'test1', getfilter=intif)]
     _strict = True
 
 rd1 = ARedisObject()
@@ -71,6 +72,8 @@ def test_reload(o1, o2):
     (rd1, rdx),
 ])
 def test_reloadx(o1, o2):
+    """This tests object has separated scope or not"""
+    o2.test1 = 5
     o1.test1 = 10
     assert o2.test1 != 10
 
@@ -104,3 +107,4 @@ def test_expiration(t1, t2):
     assert t1.test1 == 10
     time.sleep(1)
     assert t1.test1 == 10
+
