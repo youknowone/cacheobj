@@ -14,8 +14,6 @@ class MemcacheBackend(BaseBackend):
         if expiration is None:
             expiration = 0
         result = self.client.set(key, value, expiration)
-        if not result:
-            raise AttributeError("can't set attribute")
         return result
 
     def get(self, key, default=None):
