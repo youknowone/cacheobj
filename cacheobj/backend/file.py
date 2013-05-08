@@ -17,31 +17,31 @@ class JsonFileBackend(BaseBackend):
             self.storage = {}
             self.expirations = {}
 
-    def set(self, key, value, expiration=None, sync=True):
+    def set(self, key, value, expiration=None, commit=True):
         self.storage[key] = value
         assert value == self.storage[key]
         if expiration:
             self.expirations[key] = time.time() + expiration
-        if sync:
-            self.sync()
+        if commit:
+            self.commit()
         return True
 
     def get(self, key, default=None):
         if key in self.expirations:
             if time.time() > self.expirations[key]:
-                self.delete(key, sync=False)
+                self.delete(key, commit=False)
         return self.storage.get(key, default)
 
-    def delete(self, key, sync=True):
+    def delete(self, key, commit=True):
         if key in self.storage:
             del(self.storage[key])
         if key in self.expirations:
             del(self.expirations[key])
-        if sync:
-            self.sync()
+        if commit:
+            self.commit()
         return True
 
-    def sync(self):
+    def commit(self):
         data = json.dumps({'storage': self.storage, 'expire': self.expirations})
         with file(self.filepath, 'wb') as jsonfile:
             jsonfile.write(data)

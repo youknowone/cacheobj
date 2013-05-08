@@ -12,7 +12,7 @@ class MemoryBackend(BaseBackend):
         else:
             self.storage, self.expirations = global_storage, global_expirations # not good enough for big
 
-    def set(self, key, value, expiration=None, sync=True):
+    def set(self, key, value, expiration=None, commit=True):
         self.storage[key] = value
         assert value == self.storage[key]
         if expiration:
@@ -25,7 +25,7 @@ class MemoryBackend(BaseBackend):
                 self.delete(key)
         return self.storage.get(key, default)
 
-    def delete(self, key, sync=True):
+    def delete(self, key, commit=True):
         if key in self.storage:
             del(self.storage[key])
         if key in self.expirations:

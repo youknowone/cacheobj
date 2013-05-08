@@ -107,8 +107,8 @@ class CacheObject(object):
         for backend, keys in self._backends.items():
             for key in keys:
                 cache_key = self._cache_key(key)
-                backend.delete(cache_key, sync=False)
-            backend.sync()
+                backend.delete(cache_key, commit=False)
+            backend.commit()
 
 
 class SimpleCacheObject(CacheObject):
@@ -152,5 +152,5 @@ class SimpleCacheObject(CacheObject):
                 field.backend = backend
             cache_key = self._cache_key(field.key)
             #print 'del:', cache_key
-            backend.delete(cache_key, sync=False)
-        backend.sync()
+            backend.delete(cache_key, commit=False)
+        backend.commit()
