@@ -1,20 +1,24 @@
 
 
 import pytest
-from cacheobj.backend.inmemory import InMemoryBackend
+from cacheobj.backend.memory import MemoryBackend
+from cacheobj.backend.file import JsonFileBackend
 from cacheobj.backend.memcache import MemcacheBackend
 from cacheobj.backend.redis import RedisBackend
 
-memory = InMemoryBackend()
+memory = MemoryBackend()
+file = JsonFileBackend()
 memcache = MemcacheBackend()
 redis = RedisBackend()
 
-memory2 = InMemoryBackend()
+memory2 = MemoryBackend()
+file2 = JsonFileBackend()
 memcache2 = MemcacheBackend()
 redis2 = RedisBackend()
 
 @pytest.mark.parametrize(('backend',),
     [(memory,),
+     (file,),
      (memcache,),
      (redis,)
 ])
@@ -27,6 +31,7 @@ def test_backend(backend):
 
 @pytest.mark.parametrize(('b1', 'b2'),
     [(memory, memory2),
+     (file, file2),
      (memcache, memcache2),
      (redis, redis2)
 ])

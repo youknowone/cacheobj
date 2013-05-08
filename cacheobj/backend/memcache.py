@@ -10,7 +10,7 @@ class MemcacheBackend(BaseBackend):
     def __init__(self, pool=local_pool):
         self.client = memcache.Client(pool)
 
-    def set(self, key, value, expiration=0):
+    def set(self, key, value, expiration=0, sync=True):
         if expiration is None:
             expiration = 0
         result = self.client.set(key, value, expiration)
@@ -22,5 +22,5 @@ class MemcacheBackend(BaseBackend):
             return default
         return value
 
-    def delete(self, key):
+    def delete(self, key, sync=True):
         return self.client.delete(key)

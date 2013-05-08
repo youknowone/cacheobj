@@ -1,20 +1,20 @@
 
 import time
 from cacheobj import CacheObject
-from cacheobj.backend.inmemory import InMemoryBackend
+from cacheobj.backend.memory import MemoryBackend
+from cacheobj.backend.file import JsonFileBackend
 from cacheobj.backend.memcache import MemcacheBackend
 from cacheobj.backend.redis import RedisBackend
-from cacheobj.simple.inmemory import InMemoryObject
-from cacheobj.simple.redis import LocalRedisObject
-from cacheobj.simple.memcache import LocalMemcacheObject
 
-memory = InMemoryBackend()
+memory = MemoryBackend()
+jsonfile = JsonFileBackend()
 memcache = MemcacheBackend()
 redis = RedisBackend()
 
 class TestObject(CacheObject):
     _backends = {
         memory: ['mem1', 'mem2'],
+        jsonfile: ['jf1', 'jf2'],
         memcache: ['mc1', 'mc2'],
         redis: ['redis1', 'redis2'],
     }
@@ -27,6 +27,10 @@ def test_object():
     t.mem1 = 'a'
     assert t.mem1 == 'a'
     t.mem2 = 1
+
+    t.jf1 = 'a'
+    assert t.jf1 == 'a'
+    t.jf2 = 1
 
     try:
         t.mc1 = 'b'
@@ -48,6 +52,8 @@ def test_reload():
     t = TestObject()
     assert t.mem1 == 'a'
     assert t.mem2 == 1
+    assert t.jf1 == 'a'
+    assert t.jf2 == 1
     assert t.mc1 == 'b'
     assert t.mc2 == 2
     assert t.redis1 == 'c'
@@ -58,6 +64,8 @@ def test_reload():
 
     assert t.mem1 is None
     assert t.mem2 is None
+    assert t.jf1 is None
+    assert t.jf2 is None
     assert t.mc1 is None
     assert t.mc2 is None
     assert t.redis1 is None

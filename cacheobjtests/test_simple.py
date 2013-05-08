@@ -1,19 +1,31 @@
 
 import time
 import pytest
-from cacheobj.simple.inmemory import InMemoryObject
+from cacheobj.simple.memory import MemoryObject
+from cacheobj.simple.file import LocalFileObject
 from cacheobj.simple.redis import LocalRedisObject
 from cacheobj.simple.memcache import LocalMemcacheObject
 
 from cacheobj.field import SimpleField
 
-class AMemoryObject(InMemoryObject):
+
+class AMemoryObject(MemoryObject):
     _properties = ['test1']
     _strict = True
 
 mem1 = AMemoryObject()
 mem2 = AMemoryObject()
 memx = AMemoryObject(8)
+
+
+class AFileObject(LocalFileObject):
+    _properties = ['test1']
+    _strict = True
+
+file1 = AFileObject()
+file2 = AFileObject()
+filex = AFileObject(8)
+
 
 class AMemcacheObject(LocalMemcacheObject):
     _properties = ['test1']
@@ -40,6 +52,7 @@ rdx = ARedisObject(8)
 
 @pytest.mark.parametrize(('obj',), [
     (mem1, ),
+    (file1, ),
     (mc1, ),
     (rd1, ),
 ])
@@ -59,6 +72,7 @@ def test_basic(obj):
 
 @pytest.mark.parametrize(('o1', 'o2'), [
     (mem1, mem2),
+    (file1, file2),
     (mc1, mc2),
     (rd1, rd2),
 ])
@@ -68,6 +82,7 @@ def test_reload(o1, o2):
 
 @pytest.mark.parametrize(('o1', 'o2'), [
     (mem1, memx),
+    (file1, filex),
     (mc1, mcx),
     (rd1, rdx),
 ])
@@ -94,6 +109,7 @@ def test_local_cache():
 
 @pytest.mark.parametrize(('t1', 't2'), [
     (mem1, mem2),
+    (file1, file2),
     (mc1, mc2),
     (rd1, rd2),
 ])

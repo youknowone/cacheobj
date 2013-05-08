@@ -107,7 +107,8 @@ class CacheObject(object):
         for backend, keys in self._backends.items():
             for key in keys:
                 cache_key = self._cache_key(key)
-                backend.delete(cache_key)
+                backend.delete(cache_key, sync=False)
+            backend.sync()
 
 
 class SimpleCacheObject(CacheObject):
@@ -115,9 +116,9 @@ class SimpleCacheObject(CacheObject):
     SimpleCacheObject provides easy-to-inherit interface for one backend based cache object.
 
     Example:
-    from cacheobj.backend.inmemory import InMemoryBackend
+    from cacheobj.backend.memory import MemoryBackend
     def backend_generator():
-        return InMemoryBackend()
+        return MemoryBackend()
     class ASimpleCacheObejct(SimpleCacheObject):
         _backend_generator = staticmethod(backend_generator)
         _properties = ['field1', 'field2']
@@ -151,4 +152,5 @@ class SimpleCacheObject(CacheObject):
                 field.backend = backend
             cache_key = self._cache_key(field.key)
             #print 'del:', cache_key
-            backend.delete(cache_key)
+            backend.delete(cache_key, sync=False)
+        backend.sync()

@@ -68,11 +68,11 @@ Composite Example
 You can composite multiple backends for an object.
 
     >>> from cacheobj import CacheObject
-    >>> from cacheobj.backend.inmemory import InMemoryBackend
+    >>> from cacheobj.backend.memory import MemoryBackend
     >>> from cacheobj.backend.memcache import MemcacheBackend
     >>> from cacheobj.backend.redis import RedisBackend
     >>>
-    >>> memory = InMemoryBackend()
+    >>> memory = MemoryBackend()
     >>> memcache = MemcacheBackend()
     >>> redis = RedisBackend()
     >>>

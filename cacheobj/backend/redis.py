@@ -10,7 +10,7 @@ class RedisBackend(BaseBackend):
     def __init__(self, pool=local_pool):
         self.client = redis.Redis(connection_pool=pool)
 
-    def set(self, key, value, expiration=None):
+    def set(self, key, value, expiration=None, sync=True):
         result = self.client.set(key, value)
         if expiration:
             self.client.expire(key, expiration)
@@ -24,5 +24,5 @@ class RedisBackend(BaseBackend):
             return default
         return value
 
-    def delete(self, key):
+    def delete(self, key, sync=True):
         return self.client.delete(key)
