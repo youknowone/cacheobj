@@ -2,7 +2,7 @@
 import time
 import pytest
 from cacheobj.simple.memory import MemoryObject
-from cacheobj.simple.file import LocalFileObject
+from cacheobj.simple.file import LocalJsonFileObject
 from cacheobj.simple.redis import LocalRedisObject
 from cacheobj.simple.memcache import LocalMemcacheObject
 
@@ -18,7 +18,7 @@ mem2 = AMemoryObject()
 memx = AMemoryObject(8)
 
 
-class AFileObject(LocalFileObject):
+class AFileObject(LocalJsonFileObject):
     _properties = ['test1']
     _strict = True
 
