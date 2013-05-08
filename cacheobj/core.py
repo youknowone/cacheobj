@@ -8,8 +8,8 @@ class CacheObject(object):
 
     _backends should be formatted as like:
 
-    from cacheobj.backends.memcache import MemcacheBackend
-    from cacheobj.backends.redis import RedisBackend
+    from cacheobj.backend.memcache import MemcacheBackend
+    from cacheobj.backend.redis import RedisBackend
     memcache = MemcacheBackend()
     redis = RedisBackend()
 
@@ -42,13 +42,13 @@ class CacheObject(object):
             result = field.get(self, default, read_cache=use_cache)
             return result
         return get_key
-            
+
     def _set_key_func(self, field):
         def set_key(self, value, expiration=None, default=None, use_cache=False):
             result = field.set(self, value, expiration, read_cache=use_cache)
             return result
         return set_key
-    
+
     def _del_key_func(self, backend, key):
         def del_key(self):
             cache_key = self._cache_key(key)
@@ -91,7 +91,7 @@ class CacheObject(object):
             for prop in props:
                 self._set_property(prop, backend)
 
-        cls._SET = True 
+        cls._SET = True
 
     @property
     def _cache_prefix(self):
@@ -115,7 +115,7 @@ class SimpleCacheObject(CacheObject):
     SimpleCacheObject provides easy-to-inherit interface for one backend based cache object.
 
     Example:
-    from cacheobj.backends.inmemory import InMemoryBackend
+    from cacheobj.backend.inmemory import InMemoryBackend
     def backend_generator():
         return InMemoryBackend()
     class ASimpleCacheObejct(SimpleCacheObject):
@@ -124,7 +124,7 @@ class SimpleCacheObject(CacheObject):
     """
     _backend_generator = None
     _properties = []
-   
+
     @classmethod
     def _backend(cls):
         if not hasattr(cls, '__backend'):

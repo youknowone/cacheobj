@@ -1,6 +1,6 @@
 
-from .core import SimpleCacheObject
-from .backends.memcache import MemcacheBackend, local_pool
+from ..core import SimpleCacheObject
+from ..backend.memcache import MemcacheBackend, local_pool
 
 _common_backends = {}
 

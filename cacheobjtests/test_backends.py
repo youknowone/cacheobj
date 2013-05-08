@@ -1,9 +1,9 @@
 
 
 import pytest
-from cacheobj.backends.inmemory import InMemoryBackend
-from cacheobj.backends.memcache import MemcacheBackend
-from cacheobj.backends.redis import RedisBackend
+from cacheobj.backend.inmemory import InMemoryBackend
+from cacheobj.backend.memcache import MemcacheBackend
+from cacheobj.backend.redis import RedisBackend
 
 memory = InMemoryBackend()
 memcache = MemcacheBackend()

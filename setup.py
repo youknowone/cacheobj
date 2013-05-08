@@ -28,7 +28,8 @@ setup(
     url='https://github.com/youknowone/cacheobj',
     packages=(
         'cacheobj',
-        'cacheobj/backends',
+        'cacheobj/backend',
+        'cacheobj/simple',
     ),
     package_data={
         'cacheobj': ['version.txt']

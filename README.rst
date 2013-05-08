@@ -3,6 +3,8 @@ Cache object
 
 Cache object is general purpose object-property interface.
 
+NOTE: This library is under rebooting. Do not update from under 0.6.x if you mind continuous rewriting.
+
 Example
 -------
 There is some pre-defined common types.
@@ -12,7 +14,7 @@ in-memory, memcache and redis backends are included. And its common general inte
     >>> from cacheobj.redis import LocalRedisObject
     >>> class UserCache(LocalRedisObject):
     ...   _properties = ['username', 'name']
-    ... 
+    ...
     >>> user = UserCache(id=10)
     >>> print user.username
     None
@@ -38,7 +40,7 @@ For non-local cache backend, try a easy generator.
     >>> MyRedisObject = get_redis_object(redis.ConnectionPool()) # any connection pool
     >>> class MyUserCache(MyRedisObject):
     ...   pass
-    ... 
+    ...
 
 Custom Backend
 --------------
@@ -46,7 +48,7 @@ Custom Backend
 Upper examples are shortcut for basic configuration.
 
     >>> from cacheobj import SimpleCacheObject
-    >>> from cacheobj.backends.memcache import MemcacheBackend
+    >>> from cacheobj.backend.memcache import MemcacheBackend
     >>> def get_backend():
     ...   return MemcacheBackend(['127.0.0.1:11211'])
     ...
@@ -66,10 +68,10 @@ Composite Example
 You can composite multiple backends for an object.
 
     >>> from cacheobj import CacheObject
-    >>> from cacheobj.backends.inmemory import InMemoryBackend
-    >>> from cacheobj.backends.memcache import MemcacheBackend
-    >>> from cacheobj.backends.redis import RedisBackend
-    >>> 
+    >>> from cacheobj.backend.inmemory import InMemoryBackend
+    >>> from cacheobj.backend.memcache import MemcacheBackend
+    >>> from cacheobj.backend.redis import RedisBackend
+    >>>
     >>> memory = InMemoryBackend()
     >>> memcache = MemcacheBackend()
     >>> redis = RedisBackend()

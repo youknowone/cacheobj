@@ -1,12 +1,12 @@
 
 import time
 from cacheobj import CacheObject
-from cacheobj.backends.inmemory import InMemoryBackend
-from cacheobj.backends.memcache import MemcacheBackend
-from cacheobj.backends.redis import RedisBackend
-from cacheobj.inmemory import InMemoryObject
-from cacheobj.redis import LocalRedisObject
-from cacheobj.memcache import LocalMemcacheObject
+from cacheobj.backend.inmemory import InMemoryBackend
+from cacheobj.backend.memcache import MemcacheBackend
+from cacheobj.backend.redis import RedisBackend
+from cacheobj.simple.inmemory import InMemoryObject
+from cacheobj.simple.redis import LocalRedisObject
+from cacheobj.simple.memcache import LocalMemcacheObject
 
 memory = InMemoryBackend()
 memcache = MemcacheBackend()

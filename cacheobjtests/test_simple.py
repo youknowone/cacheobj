@@ -1,9 +1,9 @@
 
 import time
 import pytest
-from cacheobj.inmemory import InMemoryObject
-from cacheobj.redis import LocalRedisObject
-from cacheobj.memcache import LocalMemcacheObject
+from cacheobj.simple.inmemory import InMemoryObject
+from cacheobj.simple.redis import LocalRedisObject
+from cacheobj.simple.memcache import LocalMemcacheObject
 
 from cacheobj.field import SimpleField
 
@@ -102,7 +102,7 @@ def test_expiration(t1, t2):
     assert t1.test1 == 10
     time.sleep(1)
     assert t1.test1 != 10
-    
+
     t1._set_test1(10, 2)
     assert t1.test1 == 10
     time.sleep(1)

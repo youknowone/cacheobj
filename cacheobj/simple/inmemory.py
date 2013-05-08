@@ -1,6 +1,6 @@
 
-from .core import SimpleCacheObject
-from .backends.inmemory import InMemoryBackend
+from ..core import SimpleCacheObject
+from ..backend.inmemory import InMemoryBackend
 
 _common_backend = None
 

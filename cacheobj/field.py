@@ -33,7 +33,7 @@ class SimpleField(Field):
             cobj._locals[self.key] = result
         return result
 
-    def set(self, cobj, value, expiration=None, default=None, read_cache=False, write_cache=True): 
+    def set(self, cobj, value, expiration=None, default=None, read_cache=False, write_cache=True):
         if read_cache and self.key in cobj._locals and cobj._locals[self.key] == value:
             return
         if value != default:

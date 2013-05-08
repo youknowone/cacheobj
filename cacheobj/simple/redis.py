@@ -1,6 +1,6 @@
 
-from .core import SimpleCacheObject
-from .backends.redis import RedisBackend, local_pool
+from ..core import SimpleCacheObject
+from ..backend.redis import RedisBackend, local_pool
 
 _common_backends = {}
 
