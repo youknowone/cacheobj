@@ -39,6 +39,7 @@ class SimpleField(Field):
         if value != default:
             if expiration is None:
                 expiration = self.expiration
+            value = self.setfilter(value)
             result = self.backend.set(self.cache_key(cobj), value, expiration)
         else:
             result = self.backend.delete(self.cache_key(cobj))
