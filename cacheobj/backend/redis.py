@@ -22,7 +22,7 @@ class RedisBackend(BaseBackend):
         value = self.client.get(key)
         if value is None:
             return default
-        return value
+        return value.decode('utf-8')
 
     def delete(self, key, commit=True):
         return self.client.delete(key)

@@ -8,14 +8,15 @@ class JsonFileBackend(BaseBackend):
     def __init__(self, path='cacheobj.json'):
         self.filepath = path
         try:
-            with file(self.filepath, 'rb') as jsonfile:
+            with open(self.filepath, 'rb') as jsonfile:
                 raw = jsonfile.read()
-            data = json.loads(raw)
-            self.storage = data['storage']
-            self.expirations = data['expire']
         except IOError:
             self.storage = {}
             self.expirations = {}
+        else:
+            data = json.loads(raw)
+            self.storage = data['storage']
+            self.expirations = data['expire']
 
     def set(self, key, value, expiration=None, commit=True):
         self.storage[key] = value
@@ -42,6 +43,6 @@ class JsonFileBackend(BaseBackend):
         return True
 
     def commit(self):
-        data = json.dumps({'storage': self.storage, 'expire': self.expirations})
-        with file(self.filepath, 'wb') as jsonfile:
+        data = json.dumps({'storage': self.storage, 'expire': self.expirations}).encode('utf-8')
+        with open(self.filepath, 'wb') as jsonfile:
             jsonfile.write(data)

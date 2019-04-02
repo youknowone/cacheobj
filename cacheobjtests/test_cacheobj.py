@@ -37,7 +37,7 @@ def test_object():
         assert t.mc1 == 'b'
         t.mc2 = 2
     except:
-        print 'local memcache server looks not available.'
+        print('local memcache server looks not available.')
         raise
 
     try:
@@ -45,7 +45,7 @@ def test_object():
         assert t.redis1 == 'c'
         t.redis2 = 3
     except:
-        print 'local redis server looks not available.'
+        print('local redis server looks not available.')
         raise
 
 def test_reload():
